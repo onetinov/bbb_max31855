@@ -70,6 +70,7 @@ class MAX31855:
       celsius = v
       # LSB = 0.25 degrees C
       celsius *= 0.25
+      celsius = celsius + self.offset
       return celsius
    
    def readError(self):
