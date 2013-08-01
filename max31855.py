@@ -1,17 +1,7 @@
 #! /usr/bin/python
 
 import Adafruit_BBIO.GPIO as GPIO
-import math
 from time import sleep
-
-# Set variables for the pins connected to the ADC:
-# data_pin = "GPIO1_15" # P8.15
-# clk_pin = "GPIO1_14"  # P8.16
-# cs_pin = "GPIO0_27"   # P8.17
-# foo = MAX31855("GPIO1_15","GPIO1_14","GPIO0_27")
-# print foo.readInternal()
-# print foo.readCelsius()
-# print foo.readFarenheit()
 
 class MAX31855:
    def __init__(self, data_pin, clk_pin, cs_pin, offset=0):
@@ -45,7 +35,7 @@ class MAX31855:
       return d
 
    def readInternal(self):
-      v = spiread32()
+      v = self.spiread32()
       # ignore bottom 4 bits - just thermocouple data
       v >>= 4
       internal = v & 0x7FF
@@ -56,7 +46,7 @@ class MAX31855:
       return internal
    
    def readCelsius(self):
-      v = spiread32()
+      v = self.spiread32()
       if (v & 0x7):
          # uh oh, a serious problem!
          return float('nan')
@@ -73,13 +63,16 @@ class MAX31855:
       celsius = celsius + self.offset
       return celsius
    
+   def CtoF(self,tinc):
+      tinc *= 9.0
+      tinc /= 5.0
+      tinc += 32
+      return tinc
+
    def readError(self):
-      return spiread32() & 0x7
+      return self.spiread32() & 0x7
    
    def readFarenheit(self):
-      f = readCelsius()
-      f *= 9.0
-      f /= 5.0
-      f += 32
+      f = self.readCelsius()
+      f = self.CtoF(f)
       return f
-
