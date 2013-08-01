@@ -17,17 +17,12 @@ Library that this project depends on.
 
 https://github.com/adafruit/adafruit-beaglebone-io-python
 
-NOTE: By default, users do not have access to /sys/class/gpio, as such
-you may want to start by either changing permissions on that directory
-tree, or running the python code as root.  I did the following:
+NOTE: By default, users do not have access to /sys/class/gpio and any calls
+to GPIO.setup() will cause the creation of new objects under /sys/class/gpio
+that you also will not have access to.  As such the only way to run GPIO code
+without root is to initialize the pins first and then recursively change 
+permissions recursively (following links) throughout /sys/class/gpio.  You 
+must then avoid any new calls to GPIO.setup.
 
-Created a "gpio" user group and added my user to it.
-Refreshed my group membership by starting a new shell.
-Ran the following - 
-  "sudo chown -Rh root:gpio /sys/class/gpio"
-  "sudo chmod -R g+w /sys/class/gpio"
-
-I take no responsibility if this sets your beaglebone on fire and your
-house falls into the ocean.  There is almost certainly a more granular
-way to approach permissions such as running an strace on the example
-code and looking for gpio permission denied errors.
+The alternative is to just run everything as root, but understandably this
+is a little disappointing.
