@@ -7,6 +7,9 @@ from max31855 import MAX31855
 
 # In this example, I have the following setup:
 #
+# GND = P9.1
+# VCC = P9.3
+#
 # data_pin = "GPIO1_15" # P8.15
 # clk_pin = "GPIO1_14"  # P8.16
 # cs_pin = "GPIO0_27"   # P8.17
