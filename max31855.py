@@ -23,7 +23,7 @@ class MAX31855:
       sleep(.01)
       GPIO.output(self.cs, GPIO.LOW)
       sleep(.01)
-      for x in xrange(31,-1,-1):
+      for x in xrange(32,0,-1):
          GPIO.output(self.clk, GPIO.LOW)
          sleep(.01)
          d = d << 1
@@ -44,25 +44,20 @@ class MAX31855:
       if (v & 0x800):
         internal *= -1
       return internal
-   
+
    def readCelsius(self):
-      v = self.spiread32()
-      if (v & 0x7):
-         # uh oh, a serious problem!
-         return float('nan')
-      # get rid of internal temp data, and any fault bits
-      v >>= 18
-      # pull the bottom 13 bits off
-      temp = v & 0x3FFF
-      # check sign bit
-      if (v & 0x2000):
-         temp |= 0xC000
-      celsius = v
-      # LSB = 0.25 degrees C
-      celsius *= 0.25
-      celsius = celsius + self.offset
-      return celsius
-   
+      neg = False 
+      cel = self.spiread32()
+      cel = ((cel >> 18) & 0x3FFF) # Remove all but thermocouple data
+      if ( cel & 0x2000 ):         # If we are reading negative...
+         cel = -cel & 0x3FFF       # always work with positive valuesF
+         neg = True                # record that it was negative
+      cel = cel + 2                # Round up by .5 degC
+      cel = cel >> 2               # convert from .25 units up to full degC
+      if neg:
+         cel = -cel                # invert if necessary
+      return cel
+
    def CtoF(self,tinc):
       tinc *= 9.0
       tinc /= 5.0
